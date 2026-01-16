@@ -2,10 +2,10 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Login com Google + Calculadora</title>
+  <title>Calculadora Premium</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Google Identity Services -->
+  <!-- Google Login -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <style>
@@ -18,57 +18,62 @@
       height: 100vh;
     }
 
-    #login, #app {
+    .box {
       background: #fff;
       padding: 20px;
       border-radius: 8px;
+      width: 320px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      width: 300px;
       text-align: center;
     }
 
-    #app {
-      display: none;
-    }
-
-    input {
+    input, button {
       width: 100%;
       padding: 10px;
-      margin: 5px 0;
+      margin-top: 8px;
     }
 
-    button {
-      padding: 10px;
-      width: 100%;
+    img {
       margin-top: 10px;
-      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
 <!-- LOGIN -->
-<div id="login">
+<div id="login" class="box">
   <h2>Login com Google</h2>
+
   <div id="g_id_onload"
-       data-client_id="489676303099-9t9hqe61q4c0qpoavr3trsqs8hnsmbjp.apps.googleusercontent.com"
-       data-callback="handleCredentialResponse">
+       data-client_id="SEU_CLIENT_ID_GOOGLE"
+       data-callback="loginOk">
   </div>
 
-  <div class="g_id_signin" data-size="large"></div>
+  <div class="g_id_signin"></div>
+</div>
+
+<!-- PAYWALL -->
+<div id="paywall" class="box" style="display:none;">
+  <h2>Plano Premium</h2>
+  <p>Acesso completo por <strong>R$ 9,90</strong></p>
+
+  <button onclick="pagarPix()">Pagar com PIX</button>
+
+  <img id="qrcode" style="display:none; width:200px;">
+  <p id="pixcode" style="word-break: break-all;"></p>
 </div>
 
 <!-- APP -->
-<div id="app">
+<div id="app" class="box" style="display:none;">
   <h2>Calculadora</h2>
 
   <input type="number" id="n1" placeholder="Número 1">
   <input type="number" id="n2" placeholder="Número 2">
 
-  <button onclick="somar()">Somar</button>
-  <button onclick="subtrair()">Subtrair</button>
-  <button onclick="multiplicar()">Multiplicar</button>
-  <button onclick="dividir()">Dividir</button>
+  <button onclick="calc('+')">Somar</button>
+  <button onclick="calc('-')">Subtrair</button>
+  <button onclick="calc('*')">Multiplicar</button>
+  <button onclick="calc('/')">Dividir</button>
 
   <h3 id="resultado"></h3>
 
@@ -76,41 +81,57 @@
 </div>
 
 <script>
-  function handleCredentialResponse(response) {
-    // Login bem-sucedido
-    document.getElementById("login").style.display = "none";
-    document.getElementById("app").style.display = "block";
-  }
+/* LOGIN */
+function loginOk() {
+  document.getElementById("login").style.display = "none";
+  document.getElementById("paywall").style.display = "block";
+}
 
-  function getValores() {
-    const n1 = parseFloat(document.getElementById("n1").value);
-    const n2 = parseFloat(document.getElementById("n2").value);
-    return { n1, n2 };
-  }
+/* PIX */
+async function pagarPix() {
+  const res = await fetch("http://localhost:3000/pix", {
+    method: "POST"
+  });
 
-  function somar() {
-    const { n1, n2 } = getValores();
-    document.getElementById("resultado").innerText = "Resultado: " + (n1 + n2);
-  }
+  const data = await res.json();
 
-  function subtrair() {
-    const { n1, n2 } = getValores();
-    document.getElementById("resultado").innerText = "Resultado: " + (n1 - n2);
-  }
+  document.getElementById("qrcode").src =
+    "data:image/png;base64," + data.qr_code_base64;
 
-  function multiplicar() {
-    const { n1, n2 } = getValores();
-    document.getElementById("resultado").innerText = "Resultado: " + (n1 * n2);
-  }
+  document.getElementById("pixcode").innerText = data.qr_code;
+  document.getElementById("qrcode").style.display = "block";
 
-  function dividir() {
-    const { n1, n2 } = getValores();
-    document.getElementById("resultado").innerText = "Resultado: " + (n1 / n2);
-  }
+  // ⚠️ temporário (substituir por verificação real no backend)
+  setTimeout(liberarApp, 15000);
+}
 
-  function logout() {
-    location.reload();
-  }
+/* LIBERAR APP */
+function liberarApp() {
+  document.getElementById("paywall").style.display = "none";
+  document.getElementById("app").style.display = "block";
+}
+
+/* CALCULADORA */
+function calc(op) {
+  const n1 = parseFloat(n1El.value);
+  const n2 = parseFloat(n2El.value);
+  let r = 0;
+
+  if (op === '+') r = n1 + n2;
+  if (op === '-') r = n1 - n2;
+  if (op === '*') r = n1 * n2;
+  if (op === '/') r = n1 / n2;
+
+  resultado.innerText = "Resultado: " + r;
+}
+
+function logout() {
+  location.reload();
+}
+
+const n1El = document.getElementById("n1");
+const n2El = document.getElementById("n2");
+const resultado = document.getElementById("resultado");
 </script>
 
 </body>
