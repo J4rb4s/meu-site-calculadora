@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Login com Google + Calculadora</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    #login, #app {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 300px;
+      text-align: center;
+    }
+
+    #app {
+      display: none;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+    }
+
+    button {
+      padding: 10px;
+      width: 100%;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <h2>Login com Google</h2>
+  <div id="g_id_onload"
+       data-client_id="SEU_CLIENT_ID_AQUI"
+       data-callback="handleCredentialResponse">
+  </div>
+
+  <div class="g_id_signin" data-size="large"></div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <h2>Calculadora</h2>
+
+  <input type="number" id="n1" placeholder="Número 1">
+  <input type="number" id="n2" placeholder="Número 2">
+
+  <button onclick="somar()">Somar</button>
+  <button onclick="subtrair()">Subtrair</button>
+  <button onclick="multiplicar()">Multiplicar</button>
+  <button onclick="dividir()">Dividir</button>
+
+  <h3 id="resultado"></h3>
+
+  <button onclick="logout()">Sair</button>
+</div>
+
+<script>
+  function handleCredentialResponse(response) {
+    // Login bem-sucedido
+    document.getElementById("login").style.display = "none";
+    document.getElementById("app").style.display = "block";
+  }
+
+  function getValores() {
+    const n1 = parseFloat(document.getElementById("n1").value);
+    const n2 = parseFloat(document.getElementById("n2").value);
+    return { n1, n2 };
+  }
+
+  function somar() {
+    const { n1, n2 } = getValores();
+    document.getElementById("resultado").innerText = "Resultado: " + (n1 + n2);
+  }
+
+  function subtrair() {
+    const { n1, n2 } = getValores();
+    document.getElementById("resultado").innerText = "Resultado: " + (n1 - n2);
+  }
+
+  function multiplicar() {
+    const { n1, n2 } = getValores();
+    document.getElementById("resultado").innerText = "Resultado: " + (n1 * n2);
+  }
+
+  function dividir() {
+    const { n1, n2 } = getValores();
+    document.getElementById("resultado").innerText = "Resultado: " + (n1 / n2);
+  }
+
+  function logout() {
+    location.reload();
+  }
+</script>
+
+</body>
+</html>
